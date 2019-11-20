@@ -7,20 +7,40 @@ logger = logging.getLogger(__name__)
 updater = Updater('', use_context=True)
 class Commands:
     """
-
+    Class to call for the /help command
+    Args:
+    update: update from telegram
+    context: context of the update from telegram
     """
     def __init__(self, update, context):
         self.update = update
         self.context = context
     @staticmethod
     def normal_commands():
+        """
+        Gets normal, user commands from file and returns them
+        Returns:
+        normal_commands: the commands in a text format
+        """
         with open('normal_commands.txt', 'r') as file: commands = file.read().strip('\n')
         return commands
     @staticmethod
     def admin_commands():
+        """
+        Gets admin, commands from file and returns them, users must be stated in the authorised_user.txt file
+        Returns:
+        admin_commands: the commands in a text format
+        """
         with open('admin_commands.txt', 'r') as file: commands = file.read().strip('\n')
         return commands
-    def commands_help(self):
+    def commands_help(self):        
+        """
+        Returns the commands to the user in a message
+        Args:
+        self: all variables set out in __init__
+        Returns:
+        The output of the other commands in this class in a message format
+        """
         with open('authorised_users.txt', 'r') as file: verified = list(map(int,file.read().strip('\n').split(',')))
         if(self.update.effective_user.id in verified):
             normal = self.normal_commands()
