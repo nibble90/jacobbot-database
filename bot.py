@@ -56,14 +56,38 @@ class Commands:
 
 
 def start(update, context):
+    """
+    Function for the /start command
+    Args:
+    update: update from telegram
+    context: context of the update from telegram
+    Return:
+    Returns a nice welcome message to the user
+    """
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="I'm a bot, please talk to me!")
 
 def hello(update, context):
+    """
+    Function for the /hello command
+    Args:
+    update: update from telegram
+    context: context of the update from telegram
+    Return:
+    Returns a nice hello message to the user
+    """
     update.message.reply_text(
         'Hello, {}'.format(update.message.from_user.first_name))
 def deactivate(update, context):
+    """
+    Function for the /deactivate command
+    Args:
+    update: update from telegram
+    context: context of the update from telegram
+    Return:
+    Shuts down server providing the user is in the authorised_user.txt list
+    """
     #user_information = context.bot.get_chat_member(chat_id=update.effective_chat.id, user_id=update.effective_user.id)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
@@ -71,15 +95,37 @@ def deactivate(update, context):
     logger.critical('Shutdown initiated by {}:{}:{}'.format(update.message.from_user.first_name, update.message.from_user.last_name, update.effective_user.id))
    # context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry {}, you must be creator not {}".format( user_information['user']['first_name'], user_information['status']))
 def unknown(update, context):
+    """
+    Function for the unknown command handler
+    Args:
+    update: update from telegram
+    context: context of the update from telegram
+    Return:
+    Returns a a sorry message
+    """
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Sorry, I didn't understand that command.")
 def error_handle(update, context):
+    """
+    Function for the error handler
+    Args:
+    update: update from telegram
+    context: context of the update from telegram
+    Return:
+    Returns an error message in the log file
+    """
     logger.warning('Update "{}" caused error "{}"'.format(update, context.error))
     context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="Sorry, there was an error processing that command.")
 def help(update, context):
+    """
+    Function for the /help command
+    Args:
+    update: update from telegram
+    context: context of the update from telegram
+    """
     Commands(update, context).commands_help()
 
 
