@@ -15,6 +15,7 @@ class Commands:
     def __init__(self, update, context):
         self.update = update
         self.context = context
+        self.is_gc = None
     @staticmethod
     def normal_commands():
         """
@@ -33,7 +34,7 @@ class Commands:
         """
         with open('admin_commands.txt', 'r') as file: commands = file.read().strip('\n')
         return commands
-    def commands_help(self):        
+    def commands_help(self):
         """
         Returns the commands to the user in a message
         Args:
@@ -53,7 +54,18 @@ class Commands:
                 text="""
                 COMMANDS:
                 {}""".format(normal))
+    def is_group_chat(self):
+        """
 
+        """
+        type = self.update.effective_chat.type
+        if(type == 'private'):
+            self.is_gc = False
+        elif(type == 'group'):
+            self.is_gc = True
+        else:
+            logger.warning("Cannot establish group type {}".format(type))
+        print(self.update.effective_chat.type)
 
 def start(update, context):
     """
@@ -79,6 +91,7 @@ def hello(update, context):
     """
     update.message.reply_text(
         'Hello, {}'.format(update.message.from_user.first_name))
+    Commands(update, context).is_group_chat()
 def deactivate(update, context):
     """
     Function for the /deactivate command
