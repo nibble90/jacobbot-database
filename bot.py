@@ -132,11 +132,11 @@ def help(update, context):
 
 with open('authorised_users.txt', 'r') as file: verified = list(map(int,file.read().strip('\n').split(',')))
 updater.dispatcher.add_error_handler(error_handle)
-updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('hello', hello))
-updater.dispatcher.add_handler(CommandHandler('deactivate', deactivate, Filters.user(user_id=verified)))
-updater.dispatcher.add_handler(CommandHandler('help', help))
-updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))
+updater.dispatcher.add_handler(CommandHandler('start', start)) #add the /start command
+updater.dispatcher.add_handler(CommandHandler('hello', hello)) #add the /hello command
+updater.dispatcher.add_handler(CommandHandler('deactivate', deactivate, Filters.user(user_id=verified))) #add the deactivate command and restrict it to users in authorised_users.txt only
+updater.dispatcher.add_handler(CommandHandler('help', help)) #add the /help command
+updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown)) #trigger the unknown function if a command is not recognised
 
-updater.start_polling()
-updater.idle()
+updater.start_polling() #gets updates from telegram
+updater.idle() #waits for a stop signal
