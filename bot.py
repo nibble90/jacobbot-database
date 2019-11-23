@@ -5,6 +5,7 @@ from telegram import Chat
 logging.basicConfig(filename='log.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 updater = Updater('', use_context=True)
+
 class Commands:
     """
     Class to call for the /help command
@@ -16,6 +17,7 @@ class Commands:
         self.update = update
         self.context = context
         self.is_gc = None
+
     @staticmethod
     def normal_commands():
         """
@@ -25,6 +27,7 @@ class Commands:
         """
         with open('normal_commands.txt', 'r') as file: commands = file.read().strip('\n')
         return commands
+
     @staticmethod
     def admin_commands():
         """
@@ -34,6 +37,7 @@ class Commands:
         """
         with open('admin_commands.txt', 'r') as file: commands = file.read().strip('\n')
         return commands
+
     def commands_help(self):
         """
         Returns the commands to the user in a message
@@ -54,6 +58,7 @@ class Commands:
                 text="""
                 COMMANDS:
                 {}""".format(normal))
+
     def is_group_chat(self):
         """
 
@@ -66,6 +71,15 @@ class Commands:
         else:
             logger.warning("Cannot establish group type {}".format(type))
         print(self.update.effective_chat.type)
+
+    def main(self):
+        self.is_group_chat()
+        if(self.is_gc):
+            self.context.bot.send_message(chat_id=self.update.effective_chat.id,
+                text="Sorry {}, this must be done in a private chat".format(self.update.message.from_user.first_name))
+# send link as the text above, make the link in the format t.me/your_bot?start=XXXX
+        else:
+            self.commands_help()
 
 def start(update, context):
     """
@@ -91,7 +105,8 @@ def hello(update, context):
     """
     update.message.reply_text(
         'Hello, {}'.format(update.message.from_user.first_name))
-    Commands(update, context).is_group_chat()
+#    Commands(update, context).is_group_chat()
+
 def deactivate(update, context):
     """
     Function for the /deactivate command
@@ -107,6 +122,7 @@ def deactivate(update, context):
         text="It's been fun, goodbye")
     logger.critical('Shutdown initiated by {}:{}:{}'.format(update.message.from_user.first_name, update.message.from_user.last_name, update.effective_user.id))
    # context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry {}, you must be creator not {}".format( user_information['user']['first_name'], user_information['status']))
+
 def unknown(update, context):
     """
     Function for the unknown command handler
@@ -119,6 +135,7 @@ def unknown(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Sorry, I didn't understand that command.")
+
 def error_handle(update, context):
     """
     Function for the error handler
@@ -132,6 +149,7 @@ def error_handle(update, context):
     context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="Sorry, there was an error processing that command.")
+
 def help(update, context):
     """
     Function for the /help command
@@ -139,7 +157,7 @@ def help(update, context):
     update: update from telegram
     context: context of the update from telegram
     """
-    Commands(update, context).commands_help()
+    Commands(update, context).main()
 
 
 
