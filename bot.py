@@ -1,3 +1,4 @@
+#! /home/ubuntu/python/jacobbot/bin/python3
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
@@ -70,7 +71,7 @@ class Commands:
             self.is_gc = True
         else:
             logger.warning("Cannot establish group type {}".format(type))
-        print(self.update.effective_chat.type)
+       # print(self.update.effective_chat.type)
 
     def main(self):
         self.is_group_chat()
