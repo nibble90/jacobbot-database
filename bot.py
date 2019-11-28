@@ -69,6 +69,8 @@ class Commands:
             self.is_gc = False
         elif(type == 'group'):
             self.is_gc = True
+        elif(type == 'supergroup'):
+            self.is_gc = False
         else:
             logger.warning("Cannot establish group type {}".format(type))
        # print(self.update.effective_chat.type)
@@ -79,6 +81,8 @@ class Commands:
             self.context.bot.send_message(chat_id=self.update.effective_chat.id,
                 text="Sorry {}, this must be done in a private chat".format(self.update.message.from_user.first_name))
 # send link as the text above, make the link in the format t.me/your_bot?start=XXXX
+# use pass_args in command handler to pass args into start so that /help is ran
+# grab args in callbackcontext, they're as a string
         else:
             self.commands_help()
 
