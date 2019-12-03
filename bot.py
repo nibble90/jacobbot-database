@@ -165,6 +165,16 @@ def help(update, context):
     """
     Commands(update, context).main()
 
+def christmas(update, context):
+    """
+    """
+    chad_id = update.effective_chat.id
+    with open('christmas_chats.txt', 'r') as file: codes = list(map(int,file.read().strip('\n').split(',')))
+    if(chat_id in codes):
+        #call function to send countdown
+    else:
+        with open('christmas_chats.txt', 'a+') as file: file.write(f"{chat_id},")
+        #call function to send countdown
 
 
 with open('authorised_users.txt', 'r') as file: verified = list(map(int,file.read().strip('\n').split(',')))
