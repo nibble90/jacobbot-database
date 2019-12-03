@@ -168,7 +168,7 @@ def help(update, context):
 def christmas(update, context):
     """
     """
-    chad_id = update.effective_chat.id
+    chat_id = update.effective_chat.id
     with open('christmas_chats.txt', 'r') as file: codes = list(map(int,file.read().strip('\n').split(',')))
     if(chat_id in codes):
         #call function to send countdown
