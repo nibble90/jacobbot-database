@@ -1,9 +1,9 @@
 #! /home/ubuntu/python/jacobbot/bin/python3
 import sys, os
-print(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.abspath(__file__))))
 sys.exit(0)
-sys.path.append('')
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.append('')
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
