@@ -3,6 +3,7 @@ import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
 from invoke import task
+import ./seasonal/Christmas
 
 logging.basicConfig(filename='log.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -171,12 +172,10 @@ def christmas(update, context):
     chat_id = update.effective_chat.id
     with open('christmas_chats.txt', 'r') as file: codes = list(map(int,file.read().strip('\n').split(',')))
     if(chat_id in codes):
-        #call function to send countdown
-        pass
+        Christmas(user_id, context).countdown()
     else:
         with open('christmas_chats.txt', 'a+') as file: file.write(f"{chat_id},")
-        #call function to send countdown
-        pass
+        Christmas(user_id, context).countdown()
 
 
 with open('authorised_users.txt', 'r') as file: verified = list(map(int,file.read().strip('\n').split(',')))
