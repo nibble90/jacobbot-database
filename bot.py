@@ -1,6 +1,7 @@
 #! /home/ubuntu/python/jacobbot/bin/python3
 import sys, os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(os.path.dirname(os.path.abspath(__file__)))
+print(sys.path)
 import Christmas
 sys.exit(0)
 # sys.path.append('')
