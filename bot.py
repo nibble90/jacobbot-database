@@ -1,6 +1,6 @@
 #! /home/ubuntu/python/jacobbot/bin/python3
 import sys, os
-sys.path.append(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.exit(0)
 # sys.path.append('')
 # sys.path.append(os.path.dirname(os.path.abspath(__file__)))
