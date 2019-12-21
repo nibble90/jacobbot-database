@@ -5,7 +5,6 @@ from christmas import Christmas
 import logging, threading
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
-from invoke import task
 
 logging.basicConfig(filename='log.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -50,7 +49,7 @@ class Commands:
         Returns:
         The output of the other commands in this class in a message format
         """
-        with open('authorised_users.txt', 'r') as file: verified = list(map(int,file.read().strip('\n').split(',')))
+        verified = read_uuids("authorised_users.txt")
         if(self.update.effective_user.id in verified):
             normal = self.normal_commands()
             admin = self.admin_commands()
