@@ -1,21 +1,15 @@
 #! /home/ubuntu/python/jacobbot/bin/python3
 import sys, os
-sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)+"/seasonal))
-print(sys.path)
-import Christmas
-sys.exit(0)
-# sys.path.append('')
-# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-import logging
+sys.path.insert(0, os.path.dirname("/home/ubuntu/python/jacobbot/seasonal/"))
+from christmas import Christmas
+import logging, threading
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
 from invoke import task
-import Christmas
 
 logging.basicConfig(filename='log.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 updater = Updater('', use_context=True)
-
 class Commands:
     """
     Class to call for the /help command
@@ -95,6 +89,21 @@ class Commands:
         else:
             self.commands_help()
 
+def read_uuids(filename):
+    final = []
+    with open(filename, "r") as file:
+        contents = file.read().split(',')
+        for i in range(len(contents)):
+            if(contents[i] == "\n" or contents[i] == ""):
+                contents.pop(i)
+            else:
+                final.insert(i, contents[i].strip('\n'))
+    return list(map(int, final))
+
+def shutdown_bot():
+    updater.stop()
+    updater.is_idle = False
+
 def start(update, context):
     """
     Function for the /start command
@@ -135,7 +144,7 @@ def deactivate(update, context):
         chat_id=update.effective_chat.id,
         text="It's been fun, goodbye")
     logger.critical('Shutdown initiated by {}:{}:{}'.format(update.message.from_user.first_name, update.message.from_user.last_name, update.effective_user.id))
-   # context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry {}, you must be creator not {}".format( user_information['user']['first_name'], user_information['status']))
+    threading.Thread(target=shutdown_bot).start()
 
 def unknown(update, context):
     """
@@ -175,22 +184,24 @@ def help(update, context):
 
 def christmas(update, context):
     """
+lemons
     """
     chat_id = update.effective_chat.id
-    with open('christmas_chats.txt', 'r') as file: codes = list(map(int,file.read().strip('\n').split(',')))
+    codes = read_uuids('christmas_chats.txt')
     if(chat_id in codes):
-        Christmas(user_id, context).countdown()
+        Christmas(chat_id, context).countdown()
     else:
         with open('christmas_chats.txt', 'a+') as file: file.write(f"{chat_id},")
-        Christmas(user_id, context).countdown()
+        Christmas(chat_id, context).countdown()
 
 
-with open('authorised_users.txt', 'r') as file: verified = list(map(int,file.read().strip('\n').split(',')))
+verified = read_uuids('authorised_users.txt')
 updater.dispatcher.add_error_handler(error_handle)
 updater.dispatcher.add_handler(CommandHandler('start', start)) #add the /start command
 updater.dispatcher.add_handler(CommandHandler('hello', hello)) #add the /hello command
 updater.dispatcher.add_handler(CommandHandler('deactivate', deactivate, Filters.user(user_id=verified))) #add the deactivate command and restrict it to users in authorised_users.txt only
 updater.dispatcher.add_handler(CommandHandler('help', help)) #add the /help command
+updater.dispatcher.add_handler(CommandHandler('christmas', christmas)) #christmas command
 updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown)) #trigger the unknown function if a command is not recognised
 
 updater.start_polling() #gets updates from telegram

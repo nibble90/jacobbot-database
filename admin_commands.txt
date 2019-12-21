@@ -1,1 +1,1 @@
-disactivate - Turns off server
+deactivate - Turns off server
