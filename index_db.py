@@ -2,7 +2,7 @@ import sqlite3
 from sys import argv
 class command_line:
     def __init__(self):
-        self.arguments = argv[]
+        self.arguments = argv
     def unix(self):
         pass
     def gnu(self):
