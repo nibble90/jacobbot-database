@@ -1,7 +1,5 @@
 #! /home/ubuntu/python/jacobbot/bin/python3
-import sys, os
-sys.path.insert(0, os.path.dirname("/home/ubuntu/python/jacobbot/seasonal/"))
-from christmas import Christmas
+from seasonal.christmas import Christmas
 import logging, threading
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
