@@ -56,7 +56,7 @@ class jb_db:
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         c.execute('''CREATE TABLE users
-             (uuid text, normal_user boolean, admin_user boolean)''')
+             (uuid text, admin_user boolean, username text, password text)''')
 
 if __name__ == "__main__":
     #command = command_line()
