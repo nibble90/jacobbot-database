@@ -59,15 +59,19 @@ class jb_db:
              (uuid text, admin_user boolean, username text, password text)''')
 
     def add_user(self, uuid, admin_user=False, username=None, password=None):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
-        u = str(uuid, )
-        a = str(admin_user, )
-        us = str(username, )
-        p = str(password, )
-        c.execute("INSERT INTO users VALUES(?, ?, ?, ?)", (u, a, us, p))
-        connection.commit()
-        connection.close()
+        if(self.check_for_uuid(uuid)):
+            connection = sqlite3.connect(self.db_name)
+            c = connection.cursor()
+            u = str(uuid, )
+            a = str(admin_user, )
+            us = str(username, )
+            p = str(password, )
+            c.execute("INSERT INTO users VALUES(?, ?, ?, ?)", (u, a, us, p))
+            connection.commit()
+            connection.close()
+            return True
+        else:
+            return False
 
     def read_full_users(self):
         connection = sqlite3.connect(self.db_name)
@@ -76,6 +80,19 @@ class jb_db:
         print(c.fetchall())
         connection.commit()
         connection.close()
+
+    def check_for_uuid(self, uuid):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        u = str(uuid, )
+        c.execute("SELECT * FROM users WHERE uuid=?", (u, ))
+        result = c.fetchall()
+        connection.commit()
+        connection.close()
+        if len(result) > 0:
+            return False
+        else:
+            return True
 
 if __name__ == "__main__":
     #command = command_line()
