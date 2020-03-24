@@ -90,15 +90,12 @@ class Commands:
         else:
             self.commands_help()
 
-def read_uuids(filename):
+def format_uuids(uuids):
     final = []
-    with open(filename, "r") as file:
-        contents = file.read().split(',')
-        for i in range(len(contents)):
-            if(contents[i] == "\n" or contents[i] == ""):
-                contents.pop(i)
-            else:
-                final.insert(i, contents[i].strip('\n'))
+    for element in uuids:
+        final.append(element[0])
+    if len(final) == 0:
+        return [0000]
     return list(map(int, final))
 
 def shutdown_bot():
@@ -196,7 +193,7 @@ lemons
         Christmas(chat_id, context).countdown()
 
 
-verified = read_uuids('authorised_users.txt')
+verified = format_uuids(database.filter_permissions_check())
 updater.dispatcher.add_error_handler(error_handle)
 updater.dispatcher.add_handler(CommandHandler('start', start)) #add the /start command
 updater.dispatcher.add_handler(CommandHandler('hello', hello)) #add the /hello command

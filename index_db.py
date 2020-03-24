@@ -110,6 +110,15 @@ class jb_db:
         else:
             return False
 
+    def filter_permissions_check(self):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        c.execute("SELECT uuid FROM users WHERE admin_user='True'")
+        result = c.fetchall()
+        connection.commit()
+        connection.close()
+        return result
+
 if __name__ == "__main__":
     #command = command_line()
     #command.identify()
