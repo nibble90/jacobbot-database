@@ -94,6 +94,21 @@ class jb_db:
         else:
             return True
 
+    def permissions_check(self, uuid):
+        uuid_exists = self.check_for_uuid(uuid)
+        if(uuid_exists):
+            connection = sqlite3.connect(self.db_name)
+            c = connection.cursor()
+            u = str(uuid, )
+            c.execute("SELECT admin_user FROM users WHERE uuid=?", (u, ))
+            result = c.fetchall()
+            connection.commit()
+            connection.close()
+            return bool(result)
+        else:
+            self.add_user(uuid=uuid)
+            return False
+
 if __name__ == "__main__":
     #command = command_line()
     #command.identify()

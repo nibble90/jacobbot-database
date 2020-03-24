@@ -3,7 +3,9 @@ from seasonal.christmas import Christmas
 import logging, threading
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
+from index_db import jb_db
 
+database = jb_db("jacobbot.db")
 logging.basicConfig(filename='log.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 updater = Updater('', use_context=True)
@@ -47,8 +49,8 @@ class Commands:
         Returns:
         The output of the other commands in this class in a message format
         """
-        verified = read_uuids("authorised_users.txt")
-        if(self.update.effective_user.id in verified):
+        #verified = read_uuids("authorised_users.txt")
+        if(database.permissions_check(self.update.effective_user.id)):
             normal = self.normal_commands()
             admin = self.admin_commands()
             self.context.bot.send_message(chat_id=self.update.effective_chat.id,
