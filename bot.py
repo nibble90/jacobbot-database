@@ -56,11 +56,11 @@ class Commands:
             self.context.bot.send_message(chat_id=self.update.effective_chat.id,
                 text="COMMANDS:\n{}\n \nADMIN COMMANDS\n{}".format(normal, admin))
         else:
-            self.normal_commands()
+            normal = self.normal_commands()
             self.context.bot.send_message(chat_id=self.update.effective_chat.id,
                 text="""
                 COMMANDS:
-                {}""".format(normal))
+                \n{}""".format(normal))
 
     def is_group_chat(self):
         """

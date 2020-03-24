@@ -51,15 +51,16 @@ class command_line:
 class jb_db:
     def __init__(self, database_filename):
         self.db_name = database_filename
+        self.__create()
 
-    def create(self):
+    def __create(self):
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS users
              (uuid text, admin_user boolean, username text, password text)''')
 
     def add_user(self, uuid, admin_user=False, username=None, password=None):
-        if(self.check_for_uuid(uuid)):
+        if(not self.check_for_uuid(uuid)):
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
             u = str(uuid, )
@@ -69,9 +70,9 @@ class jb_db:
             c.execute("INSERT INTO users VALUES(?, ?, ?, ?)", (u, a, us, p))
             connection.commit()
             connection.close()
-            return True
-        else:
             return False
+        else:
+            return True
 
     def read_full_users(self):
         connection = sqlite3.connect(self.db_name)
@@ -90,12 +91,12 @@ class jb_db:
         connection.commit()
         connection.close()
         if len(result) > 0:
-            return False
-        else:
             return True
+        else:
+            return False
 
     def permissions_check(self, uuid):
-        uuid_exists = self.check_for_uuid(uuid)
+        uuid_exists = self.add_user(uuid=uuid)
         if(uuid_exists):
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
@@ -104,9 +105,9 @@ class jb_db:
             result = c.fetchall()
             connection.commit()
             connection.close()
-            return bool(result)
+            result = str(result[0][0])
+            return bool(True == result)
         else:
-            self.add_user(uuid=uuid)
             return False
 
 if __name__ == "__main__":
