@@ -55,8 +55,27 @@ class jb_db:
     def create(self):
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
-        c.execute('''CREATE TABLE users
+        c.execute('''CREATE TABLE IF NOT EXISTS users
              (uuid text, admin_user boolean, username text, password text)''')
+
+    def add_user(self, uuid, admin_user=False, username=None, password=None):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        u = str(uuid, )
+        a = str(admin_user, )
+        us = str(username, )
+        p = str(password, )
+        c.execute("INSERT INTO users VALUES(?, ?, ?, ?)", (u, a, us, p))
+        connection.commit()
+        connection.close()
+
+    def read_full_users(self):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        c.execute("SELECT * FROM users")
+        print(c.fetchall())
+        connection.commit()
+        connection.close()
 
 if __name__ == "__main__":
     #command = command_line()
