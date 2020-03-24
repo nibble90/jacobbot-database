@@ -106,7 +106,7 @@ class jb_db:
             connection.commit()
             connection.close()
             result = str(result[0][0])
-            return bool(True == result)
+            return bool('True' == result)
         else:
             return False
 

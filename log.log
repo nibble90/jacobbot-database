@@ -86,3 +86,6 @@
 2020-03-24 16:45:28,218 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
 2020-03-24 16:45:28,361 - telegram.ext.updater - WARNING - Exiting immediately!
 2020-03-24 16:46:42,742 - __main__ - CRITICAL - Shutdown initiated by Ben:Atkinson:1009602212
+2020-03-24 16:51:28,563 - telegram.ext.updater - INFO - Received signal 2 (SIGINT), stopping...
+2020-03-24 16:51:28,696 - telegram.ext.updater - WARNING - Exiting immediately!
+2020-03-24 16:54:21,389 - __main__ - CRITICAL - Shutdown initiated by Ben:Atkinson:1009602212
