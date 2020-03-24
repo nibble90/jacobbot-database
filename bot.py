@@ -98,6 +98,17 @@ def format_uuids(uuids):
         return [0000]
     return list(map(int, final))
 
+def read_uuids(filename):
+    final = []
+    with open(filename, "r") as file:
+        contents = file.read().split(',')
+        for i in range(len(contents)):
+            if(contents[i] == "\n" or contents[i] == ""):
+                contents.pop(i)
+            else:
+                final.insert(i, contents[i].strip('\n'))
+    return list(map(int, final))
+
 def shutdown_bot():
     updater.stop()
     updater.is_idle = False
