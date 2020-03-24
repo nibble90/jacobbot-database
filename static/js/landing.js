@@ -1,8 +1,6 @@
 function adminpanel(){
-alert("Admin Panel Button Pressed");
-//window redirect
+window.location.href = '/login';
 }
 function signup(){
-alert("Signup Button Pressed");
-//window redirect
+window.location.href = '/signup';
 }
