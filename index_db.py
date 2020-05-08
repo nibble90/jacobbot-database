@@ -122,4 +122,4 @@ class jb_db:
 if __name__ == "__main__":
     #command = command_line()
     #command.identify()
-    jb_db('jacobbot.db').create()
+    jb_db('jacobbot.db').read_full_users()

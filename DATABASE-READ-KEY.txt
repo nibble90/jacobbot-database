@@ -1,0 +1,6 @@
+uuid, admin_user, username, password
+
+uuid = uuid of telegram user
+admin_user = should the user have access to admin commands?
+username = [admin-only], username to connect to webapp / java app
+password = [admin-only], password to connect to webapp / java app
