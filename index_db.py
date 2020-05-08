@@ -119,7 +119,53 @@ class jb_db:
         connection.close()
         return result
 
+class login_db:
+    def __init__(self, database_filename):
+        self.db_name = database_filename
+        self.__create()
+
+    def __create(self):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS logins
+             (ip_address text, tries integer)''')
+
+    def add_user(self, ip_address, tries):
+        if(not self.check_for_uuid(uuid)):
+            connection = sqlite3.connect(self.db_name)
+            c = connection.cursor()
+            ip = str(ip_address, )
+            num_tries = int(tries, )
+            c.execute("INSERT INTO logins VALUES(?, ?)", (ip, num_tries))
+            connection.commit()
+            connection.close()
+            return False
+        else:
+            return True
+
+    def read_full_tries(self):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        c.execute("SELECT * FROM logins")
+        print(c.fetchall())
+        connection.commit()
+        connection.close()
+
+    def check_for_uuid(self, ip_address):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        ip = str(ip_address, )
+        c.execute("SELECT * FROM logins WHERE ip_address=?", (ip, ))
+        result = c.fetchall()
+        connection.commit()
+        connection.close()
+        if len(result) > 0:
+            return True
+        else:
+            return False
+
 if __name__ == "__main__":
     #command = command_line()
     #command.identify()
     jb_db('jacobbot.db').read_full_users()
+    login_db('jacobbot_logins.db').read_full_tries()
