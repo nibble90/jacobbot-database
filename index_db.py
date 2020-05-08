@@ -131,7 +131,7 @@ class login_db:
              (ip_address text, tries integer)''')
 
     def add_user(self, ip_address, tries):
-        if(not self.check_for_uuid(uuid)):
+        if(not self.check_for_ip(ip_address)):
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
             ip = str(ip_address, )
@@ -151,7 +151,7 @@ class login_db:
         connection.commit()
         connection.close()
 
-    def check_for_uuid(self, ip_address):
+    def check_for_ip(self, ip_address):
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         ip = str(ip_address, )
