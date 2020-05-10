@@ -1,4 +1,6 @@
 from index_db import jb_db, login_db
+from database_security import AccessDatabase
+"""
 def read_db():
     print("-"*6, "BEGIN DATABASE READ", "-"*6)
     database1.read_full_users()
@@ -20,3 +22,33 @@ try:
     read_db()
 except Exception as e:
     print(e)
+"""
+def test_security():
+    ip_add = "192.168.0.0"
+    securedb = AccessDatabase(ip_add)
+
+    #Reset IP Address test
+    print("Resetting {} from {} to 0".format(ip_add, securedb.attempts()))
+    securedb.reset_attempts()
+    if(securedb.attempts() == 0):
+        print("------SUCCESS-----")
+        print("IP Address reset successfully")
+        print("\n")
+    else:
+        print("------FAILURE------")
+        print("IP Address reset failed")
+        print("\n")
+
+    #Add try to IP Address test
+    print("Attempting to add an attempt to IP Address {}".format(ip_add))
+    securedb.add_attempt()
+    if(securedb.attempts() == 1):
+        print("------SUCCESS------")
+        print("IP Address attempt increment success")
+        print("\n")
+    else:
+        print("------FAILURE------")
+        print("IP Address atmp increment failed")
+        print("\n")
+
+test_security() #

@@ -1,11 +1,11 @@
 """
 
 TODO:
-    - Grab IP address from application (mainly flask)
-    - Store IP address in seperate database with number of tries
-    - If tries > 5 then block IP address
-    - Super-Admin must unblock IP address
-    - If username / password combination is correct before tries is up then
+    [X] Grab IP address from application (mainly flask)
+    [Y] Store IP address in seperate database with number of tries
+    [X] If tries > 5 then block IP address
+    [X] Super-Admin must unblock IP address
+    [X] If username / password combination is correct before tries is up then
     tries is reset to 0 and user logged in
 
 """
@@ -21,4 +21,10 @@ class AccessDatabase:
         return self.__login_database.add_try(self.ip_address)
     def attempts(self):
         return self.__login_database.read_tries(self.ip_address)
+    def reset_attempts(self):
+        self.__login_database.reset_tries(self.ip_address)
+        if(self.attempts() == 0):
+            return True
+        else:
+            return False
 

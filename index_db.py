@@ -145,7 +145,6 @@ class login_db:
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
             ip = str(ip_address, )
-            num_tries = int(1, )
             num_tries = self.read_tries(ip_address)
             num_tries += 1
             tries = int(num_tries, )
@@ -173,6 +172,14 @@ class login_db:
         connection.close()
         return result
 
+    def reset_tries(self, ip_address):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        ip = str(ip_address, )
+        tries = int(0, )
+        c.execute("UPDATE logins SET tries=? WHERE ip_address=?", (tries, ip))
+        connection.commit()
+        connection.close()
 
     def check_for_ip(self, ip_address):
         connection = sqlite3.connect(self.db_name)
