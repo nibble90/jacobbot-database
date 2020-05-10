@@ -3,7 +3,9 @@ from seasonal.christmas import Christmas
 import logging, threading
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import Chat
+from index_db import jb_db
 
+database = jb_db("jacobbot.db")
 logging.basicConfig(filename='log.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 updater = Updater('', use_context=True)
@@ -47,18 +49,18 @@ class Commands:
         Returns:
         The output of the other commands in this class in a message format
         """
-        verified = read_uuids("authorised_users.txt")
-        if(self.update.effective_user.id in verified):
+        #verified = read_uuids("authorised_users.txt")
+        if(database.permissions_check(self.update.effective_user.id)):
             normal = self.normal_commands()
             admin = self.admin_commands()
             self.context.bot.send_message(chat_id=self.update.effective_chat.id,
                 text="COMMANDS:\n{}\n \nADMIN COMMANDS\n{}".format(normal, admin))
         else:
-            self.normal_commands()
+            normal = self.normal_commands()
             self.context.bot.send_message(chat_id=self.update.effective_chat.id,
                 text="""
                 COMMANDS:
-                {}""".format(normal))
+                \n{}""".format(normal))
 
     def is_group_chat(self):
         """
@@ -87,6 +89,14 @@ class Commands:
 # grab args in callbackcontext, they're as a string
         else:
             self.commands_help()
+
+def format_uuids(uuids):
+    final = []
+    for element in uuids:
+        final.append(element[0])
+    if len(final) == 0:
+        return [0000]
+    return list(map(int, final))
 
 def read_uuids(filename):
     final = []
@@ -194,7 +204,7 @@ lemons
         Christmas(chat_id, context).countdown()
 
 
-verified = read_uuids('authorised_users.txt')
+verified = format_uuids(database.filter_permissions_check())
 updater.dispatcher.add_error_handler(error_handle)
 updater.dispatcher.add_handler(CommandHandler('start', start)) #add the /start command
 updater.dispatcher.add_handler(CommandHandler('hello', hello)) #add the /hello command
