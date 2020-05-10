@@ -145,11 +145,8 @@ class login_db:
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
             ip = str(ip_address, )
-            c.execute("SELECT tries FROM logins WHERE ip_address=?", (ip, ))
-            result = c.fetchone()
-            result = result[0]
-            print(result)
-            num_tries = int(result)
+            num_tries = int(1, )
+            num_tries = self.read_tries(ip_address)
             num_tries += 1
             tries = int(num_tries, )
             c.execute("UPDATE logins SET tries=? WHERE ip_address=?", (tries, ip))
@@ -164,6 +161,18 @@ class login_db:
         print(c.fetchall())
         connection.commit()
         connection.close()
+
+    def read_tries(self, ip_address):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        ip = str(ip_address, )
+        c.execute("SELECT tries FROM logins WHERE ip_address=?", (ip, ))
+        result = c.fetchone()
+        result = result[0]
+        connection.commit()
+        connection.close()
+        return result
+
 
     def check_for_ip(self, ip_address):
         connection = sqlite3.connect(self.db_name)
