@@ -57,17 +57,18 @@ class jb_db:
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS users
-             (uuid text, admin_user boolean, username text, password text)''')
+             (uuid text, admin_user boolean, superadmin_user boolean, username text, password text)''')
 
-    def add_user(self, uuid, admin_user=False, username=None, password=None):
+    def add_user(self, uuid, admin_user=False, superadmin_user=False, username=None, password=None):
         if(not self.check_for_uuid(uuid)):
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
-            u = str(uuid, )
-            a = str(admin_user, )
-            us = str(username, )
-            p = str(password, )
-            c.execute("INSERT INTO users VALUES(?, ?, ?, ?)", (u, a, us, p))
+            uid = str(uuid, )
+            admin = str(admin_user, )
+            superadmin = str(superadmin_user, )
+            user = str(username, )
+            passwrd = str(password, )
+            c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?)", (uid, admin, superadmin, user, passwrd))
             connection.commit()
             connection.close()
             return False
@@ -130,17 +131,30 @@ class login_db:
         c.execute('''CREATE TABLE IF NOT EXISTS logins
              (ip_address text, tries integer)''')
 
-    def add_user(self, ip_address, tries):
+    def add_try(self, ip_address):
         if(not self.check_for_ip(ip_address)):
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
             ip = str(ip_address, )
-            num_tries = int(tries, )
+            num_tries = int(1, )
             c.execute("INSERT INTO logins VALUES(?, ?)", (ip, num_tries))
             connection.commit()
             connection.close()
             return False
         else:
+            connection = sqlite3.connect(self.db_name)
+            c = connection.cursor()
+            ip = str(ip_address, )
+            c.execute("SELECT tries FROM logins WHERE ip_address=?", (ip, ))
+            result = c.fetchone()
+            result = result[0]
+            print(result)
+            num_tries = int(result)
+            num_tries += 1
+            tries = int(num_tries, )
+            c.execute("UPDATE logins SET tries=? WHERE ip_address=?", (tries, ip))
+            connection.commit()
+            connection.close()
             return True
 
     def read_full_tries(self):
@@ -167,5 +181,5 @@ class login_db:
 if __name__ == "__main__":
     #command = command_line()
     #command.identify()
-    jb_db('jacobbot.db').read_full_users()
-    login_db('jacobbot_logins.db').read_full_tries()
+    jb_db('databases/jacobbot.db').read_full_users()
+    login_db('databases/jacobbot_logins.db').read_full_tries()
