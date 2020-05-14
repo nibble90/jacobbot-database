@@ -121,7 +121,7 @@ class jb_db:
         return result
 
     def update_user(self, uuid, admin_user=False, superadmin_user=False, username=None, password=None):
-        connnection = sqlite3.connect(self.db_name)
+        connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         uid = str(uuid, )
         admin = bool(admin_user, )
