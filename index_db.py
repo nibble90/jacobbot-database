@@ -120,6 +120,18 @@ class jb_db:
         connection.close()
         return result
 
+    def update_user(self, uuid, admin_user=False, superadmin_user=False, username=None, password=None):
+        connnection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        uid = str(uuid, )
+        admin = bool(admin_user, )
+        superadmin = bool(superadmin_user, )
+        user = str(username, )
+        passwd = str(password, )
+        c.execute("UPDATE users SET admin_user=?, superadmin_user=?, username=?, password=? WHERE uuid=?", (admin, superadmin, user, passwd, uid))
+        connection.commit()
+        connection.close()
+
 class login_db:
     def __init__(self, database_filename):
         self.db_name = database_filename

@@ -34,6 +34,8 @@ class AccessDatabase:
             return True
         else:
             return False
+    def add_user(self):
+        return self.__jacobbot_database.add_user(uuid = self.uuid)
     def uuid_check(self):
         return self.__jacobbot_database.check_for_uuid(uuid = self.uuid)
 
