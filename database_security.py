@@ -13,8 +13,9 @@ TODO:
 from index_db import jb_db, login_db
 
 class AccessDatabase:
-    def __init__(self, ip_address):
-        self.ip_address = ip_address
+    def __init__(self):
+        self.ip_address = None
+        self.uuid = None
         self.__jacobbot_database = jb_db("databases/jacobbot.db")
         self.__login_database = login_db("databases/jacobbot_logins.db")
     def add_attempt(self):
@@ -27,4 +28,8 @@ class AccessDatabase:
             return True
         else:
             return False
+    def add_user(self):
+        return self.__jacobbot_database.add_user(uuid = self.uuid)
+    def uuid_check(self):
+        return self.__jacobbot_database.check_for_uuid(uuid = self.uuid)
 
