@@ -15,9 +15,18 @@ class TestDatabaseSecurity(unittest.TestCase):
     def test_attempts(self):
         self.assertEqual(self.AD.attempts(), 1)
     def test_add_user(self):
-        self.assertFalse(self.AD.add_user())
+        if(self.AD.uuid_check()):
+            self.assertTrue(self.AD.add_user())
+        else:
+            self.assertFalse(self.AD.add_user())
     def test_uuid_check(self):
         self.assertTrue(self.AD.uuid_check())
+    def test_allow_access(self):
+        attempts = int(self.AD.attempts())
+        if(attempts >= 5):
+            self.assertFalse(self.AD.check_access())
+        else:
+            self.assertTrue(self.AD.check_access())
 
 
 
