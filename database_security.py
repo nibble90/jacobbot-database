@@ -7,6 +7,7 @@ TODO:
     [X] Super-Admin must unblock IP address
     [X] If username / password combination is correct before tries is up then
     tries is reset to 0 and user logged in
+    [X] Add try excepts to everything in jb_db to detect is theres an error
 
 """
 
