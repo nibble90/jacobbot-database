@@ -18,6 +18,12 @@ class AccessDatabase:
         self.uuid = None
         self.__jacobbot_database = jb_db("databases/jacobbot.db")
         self.__login_database = login_db("databases/jacobbot_logins.db")
+    def check_access(self):
+        attempts = int(self.attempts())
+        if(attempts >= 5):
+            return False
+        else:
+            return True
     def add_attempt(self):
         return self.__login_database.add_try(self.ip_address)
     def attempts(self):
