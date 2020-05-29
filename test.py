@@ -1,7 +1,7 @@
 import sys, unittest
 sys.path.append("../")
 
-from database_security import AccessDatabase
+from database_access_layer import AccessDatabase
 
 class TestDatabaseSecurity(unittest.TestCase):
     def setUp(self):

@@ -47,7 +47,7 @@ class command_line:
             else:
                 temp_argv.append(element)
         self.arguments = temp_argv
-    
+
 class jb_db:
     def __init__(self, database_filename):
         self.db_name = database_filename
@@ -141,7 +141,7 @@ class login_db:
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS logins
-             (ip_address text, tries integer)''')
+             (ip_address text, tries integer, blocked boolean)''')
 
     def add_try(self, ip_address):
         if(not self.check_for_ip(ip_address)):
@@ -149,7 +149,7 @@ class login_db:
             c = connection.cursor()
             ip = str(ip_address, )
             num_tries = int(1, )
-            c.execute("INSERT INTO logins VALUES(?, ?)", (ip, num_tries))
+            c.execute("INSERT INTO logins VALUES(?, ?, ?)", (ip, num_tries, False))
             connection.commit()
             connection.close()
             return False
@@ -205,6 +205,16 @@ class login_db:
             return True
         else:
             return False
+
+    def block_ip(self, ip_address):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        ip = str(ip_address, )
+        c.execute("UPDATE logins SET blocked=? WHERE ip_address=?", (True, ip))
+        connection.commit()
+        connection.close()
+
+    def check_for_blocked()
 
 if __name__ == "__main__":
     #command = command_line()
