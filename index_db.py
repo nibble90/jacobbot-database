@@ -64,8 +64,8 @@ class jb_db:
             connection = sqlite3.connect(self.db_name)
             c = connection.cursor()
             uid = str(uuid, )
-            admin = str(admin_user, )
-            superadmin = str(superadmin_user, )
+            admin = bool(admin_user, )
+            superadmin = bool(superadmin_user, )
             user = str(username, )
             passwrd = str(password, )
             c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?)", (uid, admin, superadmin, user, passwrd))
@@ -107,7 +107,7 @@ class jb_db:
             connection.commit()
             connection.close()
             result = str(result[0][0])
-            return bool('True' == result)
+            return bool(result)
         else:
             return False
 
@@ -213,7 +213,9 @@ class login_db:
         connection, c = self.connect()
         ip = str(ip_address, )
         c.execute("SELECT blocked FROM logins WHERE ip_address=?", (ip, ))
+        result = c.fetchall()
         self.disconnect(connection)
+        return bool(result[0][0])
 
     def unblock_ip(self, ip_address):
         connection, c = self.connect()
