@@ -44,7 +44,20 @@ class AccessDatabase:
         self.__jacobbot_database.update_user(uid, admin_user, superadmin_user, username, password)
     def block_user(self):
         access = self.check_access()
-        if(attempts is not True):
+        if(access is not True):
             self.__login_database.block_ip(self.ip_address)
         else:
             pass
+    def unblock_user(self):
+        self.__login_database.unblock_ip(self.ip_address)
+        if(self.check_block_status == False):
+            return True
+        else:
+            return False
+    def check_block_status(self):
+        status = self.__login_database.check_for_blocked(self.ip_address)
+        status = bool(status == True)
+        if(status):
+            return True
+        else:
+            return False

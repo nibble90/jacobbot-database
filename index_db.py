@@ -157,7 +157,7 @@ class login_db:
             connection, c = self.connect()
             ip = str(ip_address, )
             num_tries = int(1, )
-            c.execute("INSERT INTO logins VALUES(?, ?, ?)", (ip, num_tries, False))
+            c.execute("INSERT INTO logins VALUES(?, ?, ?)", (ip, num_tries, bool(False)))
             self.disconnect(connection)
             return False
         else:
@@ -206,11 +206,20 @@ class login_db:
     def block_ip(self, ip_address):
         connection, c = self.connect()
         ip = str(ip_address, )
-        c.execute("UPDATE logins SET blocked=? WHERE ip_address=?", (True, ip))
+        c.execute("UPDATE logins SET blocked=True WHERE ip_address=?", (ip, ))
         self.disconnect(connection)
 
     def check_for_blocked(self, ip_address):
-        pass
+        connection, c = self.connect()
+        ip = str(ip_address, )
+        c.execute("SELECT blocked FROM logins WHERE ip_address=?", (ip, ))
+        self.disconnect(connection)
+
+    def unblock_ip(self, ip_address):
+        connection, c = self.connect()
+        ip = str(ip_address, )
+        c.execute("UPDATE logins SET blocked=False WHERE ip_address=?", (ip, ))
+        self.disconnect(connection)
 
 if __name__ == "__main__":
     #command = command_line()
