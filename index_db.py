@@ -137,84 +137,80 @@ class login_db:
         self.db_name = database_filename
         self.__create()
 
-    def __create(self):
+    def connect(self):
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
+        return (connection, c)
+
+    def disconnect(self, connection):
+        connection.commit()
+        connection.close()
+
+    def __create(self):
+        connection, c = self.connect()
         c.execute('''CREATE TABLE IF NOT EXISTS logins
              (ip_address text, tries integer, blocked boolean)''')
+        self.disconnect(connection)
 
     def add_try(self, ip_address):
         if(not self.check_for_ip(ip_address)):
-            connection = sqlite3.connect(self.db_name)
-            c = connection.cursor()
+            connection, c = self.connect()
             ip = str(ip_address, )
             num_tries = int(1, )
             c.execute("INSERT INTO logins VALUES(?, ?, ?)", (ip, num_tries, False))
-            connection.commit()
-            connection.close()
+            self.disconnect(connection)
             return False
         else:
-            connection = sqlite3.connect(self.db_name)
-            c = connection.cursor()
+            connection, c = self.connect()
             ip = str(ip_address, )
             num_tries = self.read_tries(ip_address)
             num_tries += 1
             tries = int(num_tries, )
             c.execute("UPDATE logins SET tries=? WHERE ip_address=?", (tries, ip))
-            connection.commit()
-            connection.close()
+            self.disconnect(connection)
             return True
 
     def read_full_tries(self):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
+        connection, c = self.connect()
         c.execute("SELECT * FROM logins")
         print(c.fetchall())
-        connection.commit()
-        connection.close()
+        self.disconnect(connection)
 
     def read_tries(self, ip_address):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
+        connection, c = self.connect()
         ip = str(ip_address, )
         c.execute("SELECT tries FROM logins WHERE ip_address=?", (ip, ))
         result = c.fetchone()
         result = result[0]
-        connection.commit()
-        connection.close()
+        self.disconnect(connection)
         return result
 
     def reset_tries(self, ip_address):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
+        connection, c = self.connect()
         ip = str(ip_address, )
         tries = int(0, )
         c.execute("UPDATE logins SET tries=? WHERE ip_address=?", (tries, ip))
-        connection.commit()
-        connection.close()
+        self.disconnect(connection)
 
     def check_for_ip(self, ip_address):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
+        connection, c = self.connect()
         ip = str(ip_address, )
         c.execute("SELECT * FROM logins WHERE ip_address=?", (ip, ))
         result = c.fetchall()
-        connection.commit()
-        connection.close()
+        self.disconnect(connection)
         if len(result) > 0:
             return True
         else:
             return False
 
     def block_ip(self, ip_address):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
+        connection, c = self.connect()
         ip = str(ip_address, )
         c.execute("UPDATE logins SET blocked=? WHERE ip_address=?", (True, ip))
-        connection.commit()
-        connection.close()
+        self.disconnect(connection)
 
-    def check_for_blocked()
+    def check_for_blocked(self, ip_address):
+        pass
 
 if __name__ == "__main__":
     #command = command_line()

@@ -47,4 +47,4 @@ class AccessDatabase:
         if(attempts is not True):
             self.__login_database.block_ip(self.ip_address)
         else:
-            continue
+            pass
