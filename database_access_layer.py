@@ -26,7 +26,9 @@ class AccessDatabase:
         else:
             return True
     def add_attempt(self):
-        return self.__login_database.add_try(self.ip_address)
+        result = self.__login_database.add_try(self.ip_address)
+        self.block_user()
+        return result
     def attempts(self):
         return self.__login_database.read_tries(self.ip_address)
     def reset_attempts(self):
