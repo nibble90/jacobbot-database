@@ -1,4 +1,0 @@
-help - Returns this help message
-start - Returns the welcome message
-hello - Returns a nice help message
-christmas - Registers current channel for christmas countdown or returns countdown if registered
