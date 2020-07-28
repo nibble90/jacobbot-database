@@ -14,11 +14,11 @@ TODO:
 from index_db import jb_db, login_db
 
 class AccessDatabase:
-    def __init__(self):
+    def __init__(self, jblocation="databases/jacobbot.db", loginlocation="databases/jacobbot_logins.db"):
         self.ip_address = None
         self.uuid = None
-        self.__jacobbot_database = jb_db("databases/jacobbot.db")
-        self.__login_database = login_db("databases/jacobbot_logins.db")
+        self.__jacobbot_database = jb_db(jblocation)
+        self.__login_database = login_db(loginlocation)
     def check_access(self):
         attempts = int(self.attempts())
         if(attempts >= 5):
@@ -26,8 +26,8 @@ class AccessDatabase:
         else:
             return True
     def add_attempt(self):
-        result = self.__login_database.add_try(self.ip_address)
         self.block_user()
+        result = self.__login_database.add_try(self.ip_address)
         return result
     def attempts(self):
         return self.__login_database.read_tries(self.ip_address)
@@ -63,3 +63,5 @@ class AccessDatabase:
             return True
         else:
             return False
+    def login(self, username, password):
+        pass

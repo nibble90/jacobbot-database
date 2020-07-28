@@ -1,5 +1,6 @@
 import sqlite3
 from sys import argv
+from encryption import Encrypt
 class command_line:
     def __init__(self):
         self.arguments = argv
@@ -131,6 +132,17 @@ class jb_db:
         c.execute("UPDATE users SET admin_user=?, superadmin_user=?, username=?, password=? WHERE uuid=?", (admin, superadmin, user, passwd, uid))
         connection.commit()
         connection.close()
+
+    def login_attempt(self, username, password):
+        connection = sqlite3.connect(self.db_name)
+        c = connection.cursor()
+        user = str(username, )
+        password_hash = Encrypt("password").encrypt()
+        c.execute("SELECT password FROM users WHERE username=?", (user, ))
+        result = c.fetchall()
+        connection.commit()
+        connection.close()
+        print(result)
 
 class login_db:
     def __init__(self, database_filename):
