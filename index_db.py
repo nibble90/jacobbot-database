@@ -137,11 +137,12 @@ class jb_db:
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         user = str(username, )
-        password_hash = Encrypt("password").encrypt()
         c.execute("SELECT password FROM users WHERE username=?", (user, ))
         result = c.fetchall()
         connection.commit()
         connection.close()
+        password_hash = Encrypt(password).encrypt()
+        #if(password_hash == )
         print(result)
 
 class login_db:
