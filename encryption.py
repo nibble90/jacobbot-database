@@ -7,4 +7,3 @@ class Encrypt:
         hashed = hashlib.sha512()
         hashed.update(self.target.encode())
         return hashed.hexdigest()
-
