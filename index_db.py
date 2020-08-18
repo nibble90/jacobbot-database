@@ -133,7 +133,7 @@ class jb_db:
         connection.commit()
         connection.close()
 
-    def login_attempt(self, username, password):
+    def login_attempt(self, username, password_given):
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         user = str(username, )
@@ -141,9 +141,12 @@ class jb_db:
         result = c.fetchall()
         connection.commit()
         connection.close()
-        password_hash = Encrypt(password).encrypt()
-        #if(password_hash == )
-        print(result)
+        password_hash = Encrypt(password_given).encrypt()
+        password = result[0][0]
+        if(password_hash == password):
+            return True
+        else:
+            return False
 
 class login_db:
     def __init__(self, database_filename):
