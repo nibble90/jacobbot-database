@@ -68,7 +68,10 @@ class jb_db:
             admin = bool(admin_user, )
             superadmin = bool(superadmin_user, )
             user = str(username, )
-            passwrd = str(Encrypt(password).encrypt(), )
+            if password != None:
+                passwrd = str(Encrypt(password).encrypt(), )
+            else:
+                passwrd = str(password, )
             c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?)", (uid, admin, superadmin, user, passwrd))
             connection.commit()
             connection.close()
