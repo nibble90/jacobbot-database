@@ -225,7 +225,7 @@ class login_db:
     def block_ip(self, ip_address):
         connection, c = self.connect()
         ip = str(ip_address, )
-        c.execute("UPDATE logins SET blocked=True WHERE ip_address=?", (ip, ))
+        c.execute("UPDATE logins SET blocked=1 WHERE ip_address=?", (ip, ))
         self.disconnect(connection)
 
     def check_for_blocked(self, ip_address):
@@ -239,7 +239,7 @@ class login_db:
     def unblock_ip(self, ip_address):
         connection, c = self.connect()
         ip = str(ip_address, )
-        c.execute("UPDATE logins SET blocked=False WHERE ip_address=?", (ip, ))
+        c.execute("UPDATE logins SET blocked=0 WHERE ip_address=?", (ip, ))
         self.disconnect(connection)
 
 if __name__ == "__main__":
