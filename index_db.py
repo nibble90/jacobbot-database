@@ -245,5 +245,8 @@ class login_db:
 if __name__ == "__main__":
     #command = command_line()
     #command.identify()
-    jb_db('databases/jacobbot.db').read_full_users()
-    login_db('databases/jacobbot_logins.db').read_full_tries()
+    jb_db('/home/ubuntu/jacobbot/database/databases/jacobbot.db').read_full_users()
+    print('*'*8)
+    login_db('/home/ubuntu/jacobbot/database/databases/jacobbot_logins.db').read_full_tries()
+    print('*'*8)
+    login_db('/home/ubuntu/jacobbot/database/databases/jacobbot_logins.db').read_tries("192.168.0.0")

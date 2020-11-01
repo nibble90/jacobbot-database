@@ -51,4 +51,9 @@ def test_security():
         print("IP Address atmp increment failed")
         print("\n")
 
-test_security() #
+def add_user():
+    database1 = jb_db("databases/jacobbot.db")
+    database1.add_user(uuid=9687468, username="admin", password="admin", admin_user=True)
+
+add_user()
+#test_security() #

@@ -20,15 +20,24 @@ class AccessDatabase:
         self.__jacobbot_database = jb_db(jblocation)
         self.__login_database = login_db(loginlocation)
     def check_access(self):
-        attempts = int(self.attempts())
-        if(attempts >= 5):
-            return False
+        ip_check = self.__login_database.check_for_ip(self.ip_address)
+        if(ip_check):
+            attempts = int(self.attempts())
+            if(attempts >= 5):
+                return False
+            else:
+                return True
         else:
+            self.add_attempt(bypass=True)
             return True
-    def add_attempt(self):
-        self.block_user()
-        result = self.__login_database.add_try(self.ip_address)
-        return result
+    def add_attempt(self, bypass=False):
+        if(not bypass):
+            self.block_user()
+            result = self.__login_database.add_try(self.ip_address)
+            return result
+        else:
+            result = self.__login_database.add_try(self.ip_address)
+            return result
     def attempts(self):
         return self.__login_database.read_tries(self.ip_address)
     def reset_attempts(self):
