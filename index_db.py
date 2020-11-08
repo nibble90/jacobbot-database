@@ -1,6 +1,6 @@
 import sqlite3
 from sys import argv
-from encryption import Encrypt
+from .encryption import Encrypt
 class command_line:
     def __init__(self):
         self.arguments = argv
@@ -142,12 +142,14 @@ class jb_db:
         user = str(username, )
         c.execute("SELECT password FROM users WHERE username=?", (user, ))
         result = c.fetchall()
+        print(repr(result))
         connection.commit()
         connection.close()
-        password_hash = Encrypt(password_given).encrypt()
-        password = result[0][0]
-        if(password_hash == password):
-            return True
+        if(result != None):
+            password_hash = Encrypt(password_given).encrypt()
+            password = result[0][0]
+            if(password_hash == password):
+                return True
         else:
             return False
 

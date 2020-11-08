@@ -11,7 +11,7 @@ TODO:
 
 """
 
-from index_db import jb_db, login_db
+from .index_db import jb_db, login_db
 
 class AccessDatabase:
     def __init__(self, jblocation="databases/jacobbot.db", loginlocation="databases/jacobbot_logins.db"):
