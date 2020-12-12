@@ -142,7 +142,6 @@ class jb_db:
         user = str(username, )
         c.execute("SELECT password FROM users WHERE username=?", (user, ))
         result = c.fetchall()
-        print(repr(result))
         connection.commit()
         connection.close()
         if(result != None):
