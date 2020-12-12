@@ -73,4 +73,8 @@ class AccessDatabase:
         else:
             return False
     def login(self, username, password):
-        return self.__jacobbot_database.login_attempt(username, password)
+        if(self.__jacobbot_database.login_attempt(username, password)):
+            self.reset_attempts()
+            return True
+        else:
+            return False
