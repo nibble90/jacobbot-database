@@ -120,7 +120,7 @@ class jb_database:
         connection, c = self.__connect()
         attempts = self.__check_attempts(ip_address)
         if(not attempts):
-            c.execute('''INSERT INTO login_attempts (ip_address, tries) VALUES (?, 1)''', (ip_address, )
+            c.execute('''INSERT INTO login_attempts (ip_address, tries) VALUES (?, 1)''', (ip_address, ))
         else:
             attempts = attempts + 1
             c.execute('''UPDATE login_attempts SET tries=? WHERE ip_address=?''', (attempts, ip_address))

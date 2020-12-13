@@ -6,3 +6,5 @@ lib64
 my-httpd.conf
 databases/*
 __pycache__
+.env
+.env
