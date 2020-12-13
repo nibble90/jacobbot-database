@@ -192,4 +192,3 @@ class jb_database:
     def unblock_ip_address(self, ip_address):
         self.__unblock_ip_address(ip_address)
         self.__reset_attempts(ip_address)
-

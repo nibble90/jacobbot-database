@@ -11,70 +11,20 @@ TODO:
 
 """
 
-from .index_db import jb_db, login_db
+from .index_db import jb_database
 
 class AccessDatabase:
     def __init__(self, jblocation="databases/jacobbot.db", loginlocation="databases/jacobbot_logins.db"):
         self.ip_address = None
         self.uuid = None
-        self.__jacobbot_database = jb_db(jblocation)
-        self.__login_database = login_db(loginlocation)
-    def check_access(self):
-        ip_check = self.__login_database.check_for_ip(self.ip_address)
-        if(ip_check):
-            attempts = int(self.attempts())
-            if(attempts >= 5):
-                return False
-            else:
-                return True
-        else:
-            self.add_attempt(bypass=True)
-            return True
-    def add_attempt(self, bypass=False):
-        if(not bypass):
-            self.block_user()
-            result = self.__login_database.add_try(self.ip_address)
-            return result
-        else:
-            result = self.__login_database.add_try(self.ip_address)
-            return result
-    def attempts(self):
-        return self.__login_database.read_tries(self.ip_address)
-    def reset_attempts(self):
-        self.__login_database.reset_tries(self.ip_address)
-        if(self.attempts() == 0):
-            return True
-        else:
-            return False
+        self.__jacobbot_database = jb_database(jblocation)
+
     def add_user(self):
-        return self.__jacobbot_database.add_user(uuid = self.uuid)
-    def uuid_check(self):
-        return self.__jacobbot_database.check_for_uuid(uuid = self.uuid)
-    def update_user(self, admin_user=False, superadmin_user=False, username=None, password=None, token=None):
-        uid = self.uuid
-        self.__jacobbot_database.update_user(uid, admin_user, superadmin_user, username, password, token)
-    def block_user(self):
-        access = self.check_access()
-        if(access is not True):
-            self.__login_database.block_ip(self.ip_address)
-        else:
-            pass
-    def unblock_user(self):
-        self.__login_database.unblock_ip(self.ip_address)
-        if(self.check_block_status == False):
-            return True
-        else:
-            return False
-    def check_block_status(self):
-        status = self.__login_database.check_for_blocked(self.ip_address)
-        status = bool(status == True)
-        if(status):
-            return True
-        else:
-            return False
+        return self.__jacobbot_database.modify_user(uuid = self.uuid)
+
+    def update_user(self, telegram_uuid=None, discord_uuid=None, username=None, password=None, superadmin=None):
+        self.__jacobbot_database.modify_user(telegram_uuid=telegram_uuid, discord_uuid=discord_uuid, username=username, password=password, superadmin=superadmin)
+
     def login(self, username, password):
-        if(self.__jacobbot_database.login_attempt(username, password)):
-            self.reset_attempts()
-            return True
-        else:
-            return False
+        attempt = self.__jacobbot_database.login_attempt(username=username, password=password, ip_address=self.ip_address)
+        return attempt
