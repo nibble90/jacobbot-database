@@ -1,253 +1,195 @@
 import sqlite3
 from sys import argv
 from .encryption import Encrypt
-class command_line:
-    def __init__(self):
-        self.arguments = argv
 
-    def unix(self):
-        pass
-
-    def gnu(self):
-        pass
-
-    def windows(self):
-        pass
-
-    def identify(self):
-        dash = 0
-        slash = 0
-        for character in self.arguments[1]:
-            if(character == "-"):
-                dash += 1
-            elif(character == "/"):
-                slash += 1
-        if(dash == 1):
-            print("UNIX")
-            print(*self.arguments)
-        elif(dash == 2):
-            print("GNU")
-            print(*self.arguments)
-        elif(slash == 1):
-            print("WINDOWS")
-            print(*self.arguments)
-        else:
-            print("Error, found {} dashes and {} slashes".format(dash, slash))
-            print(*self.arguments)
-        self.strip()
-        print(*self.arguments)
-
-    def strip(self):
-        temp_argv = []
-        for element in self.arguments:
-            if(element[0] == "-" or element[0] == "/"):
-                if(element[1] == "-"):
-                    temp_argv.append(element[2:])
-                else:
-                    temp_argv.append(element[1:])
-            else:
-                temp_argv.append(element)
-        self.arguments = temp_argv
-
-class jb_db:
+class jb_database:
     def __init__(self, database_filename):
         self.db_name = database_filename
         self.__create()
 
-    def __create(self):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS users
-             (uuid text, admin_user boolean, superadmin_user boolean, username text, password text)''')
-
-    def add_user(self, uuid, admin_user=False, superadmin_user=False, username=None, password=None):
-        if(not self.check_for_uuid(uuid)):
-            connection = sqlite3.connect(self.db_name)
-            c = connection.cursor()
-            uid = str(uuid, )
-            admin = bool(admin_user, )
-            superadmin = bool(superadmin_user, )
-            user = str(username, )
-            if password != None:
-                passwrd = str(Encrypt(password).encrypt(), )
-            else:
-                passwrd = str(password, )
-            c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?)", (uid, admin, superadmin, user, passwrd))
-            connection.commit()
-            connection.close()
-            return False
-        else:
-            return True
-
-    def read_full_users(self):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
-        c.execute("SELECT * FROM users")
-        print(c.fetchall())
-        connection.commit()
-        connection.close()
-
-    def check_for_uuid(self, uuid):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
-        u = str(uuid, )
-        c.execute("SELECT * FROM users WHERE uuid=?", (u, ))
-        result = c.fetchall()
-        connection.commit()
-        connection.close()
-        if len(result) > 0:
-            return True
-        else:
-            return False
-
-    def permissions_check(self, uuid):
-        uuid_exists = self.add_user(uuid=uuid)
-        if(uuid_exists):
-            connection = sqlite3.connect(self.db_name)
-            c = connection.cursor()
-            u = str(uuid, )
-            c.execute("SELECT admin_user FROM users WHERE uuid=?", (u, ))
-            result = c.fetchall()
-            connection.commit()
-            connection.close()
-            result = str(result[0][0])
-            return bool(result)
-        else:
-            return False
-
-    def filter_permissions_check(self):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
-        c.execute("SELECT uuid FROM users WHERE admin_user='True'")
-        result = c.fetchall()
-        connection.commit()
-        connection.close()
-        return result
-
-    def update_user(self, uuid, admin_user=False, superadmin_user=False, username=None, password=None):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
-        uid = str(uuid, )
-        admin = bool(admin_user, )
-        superadmin = bool(superadmin_user, )
-        user = str(username, )
-        passwd = str(Encrypt(password).encrypt(), )
-        c.execute("UPDATE users SET admin_user=?, superadmin_user=?, username=?, password=? WHERE uuid=?", (admin, superadmin, user, passwd, uid))
-        connection.commit()
-        connection.close()
-
-    def login_attempt(self, username, password_given):
-        connection = sqlite3.connect(self.db_name)
-        c = connection.cursor()
-        user = str(username, )
-        c.execute("SELECT password FROM users WHERE username=?", (user, ))
-        result = c.fetchall()
-        connection.commit()
-        connection.close()
-        if(result != None):
-            password_hash = Encrypt(password_given).encrypt()
-            password = result[0][0]
-            if(password_hash == password):
-                return True
-        else:
-            return False
-
-class login_db:
-    def __init__(self, database_filename):
-        self.db_name = database_filename
-        self.__create()
-
-    def connect(self):
+    def __connect(self):
         connection = sqlite3.connect(self.db_name)
         c = connection.cursor()
         return (connection, c)
 
-    def disconnect(self, connection):
+    def __disconnect(self):
         connection.commit()
         connection.close()
 
     def __create(self):
-        connection, c = self.connect()
-        c.execute('''CREATE TABLE IF NOT EXISTS logins
-             (ip_address text, tries integer, blocked boolean)''')
-        self.disconnect(connection)
+        connection, c = self.__connect()
+        c.execute('''CREATE TABLE IF NOT EXISTS users
+            (uuid INTEGER PRIMARY KEY AUTOINCREMENT, telegram_uuid TEXT, 
+            discord_uuid TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS login_details
+            (uuid TEXT, superadmin BOOLEAN, username TEXT, password TEXT, FOREIGN KEY(uuid) REFERENCES posts(uuid))''')
+        c.execute('''CREATE TABLE IF NOT EXISTS login_attempts
+            (ip_address TEXT, tries INTEGER, blocked BOOLEAN)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS user_extensions
+            (uuid TEXT, twitter_oauth TEXT, twitter_oauth_secret TEXT, default_weather TEXT, 
+            FOREIGN KEY (uuid) REFERENCES users(uuid))''')
+        self.__disconnect(connection)
 
-    def add_try(self, ip_address):
-        if(not self.check_for_ip(ip_address)):
-            connection, c = self.connect()
-            ip = str(ip_address, )
-            num_tries = int(1, )
-            c.execute("INSERT INTO logins VALUES(?, ?, ?)", (ip, num_tries, bool(False)))
-            self.disconnect(connection)
-            return False
-        else:
-            connection, c = self.connect()
-            ip = str(ip_address, )
-            num_tries = self.read_tries(ip_address)
-            num_tries += 1
-            tries = int(num_tries, )
-            c.execute("UPDATE logins SET tries=? WHERE ip_address=?", (tries, ip))
-            self.disconnect(connection)
+    def __user_exists(self, telegram_uuid=None, discord_uuid=None):
+        result = self.__find_uuid(telegram_uuid, discord_uuid)       
+        if(len(result) > 0):
             return True
+        return False
 
-    def read_full_tries(self):
-        connection, c = self.connect()
-        c.execute("SELECT * FROM logins")
-        print(c.fetchall())
-        self.disconnect(connection)
+    def __add_user(self, telegram_uuid=None, discord_uuid=None):
+        telegram_uuid = str(telegram_uuid, )
+        discord_uuid = str(discord_uuid, )
+        connection, c = self.__connect()
+        if discord_uuid is None:
+            c.execute('''INSERT INTO users (telegram_uuid) VALUES (?)''', (telegram_uuid, ))
+        elif telegram_uuid is None:
+            c.execute('''INSERT INTO users (discord_uuid) VALUES (?)''', (discord_uuid, ))
+        else:
+            c.execute('''INSERT INTO users (telegram_uuid, discord_uuid) VALUES (?, ?)''', (telegram_uuid, discord_uuid))
+        result = c.fetchall()
+        self.__disconnect(connection)        
+        if(len(result) > 0):
+            return True
+        return False
 
-    def read_tries(self, ip_address):
-        connection, c = self.connect()
-        ip = str(ip_address, )
-        c.execute("SELECT tries FROM logins WHERE ip_address=?", (ip, ))
-        result = c.fetchone()
+    def __find_uuid(self, telegram_uuid=None, discord_uuid=None):
+        telegram_uuid = str(telegram_uuid, )
+        discord_uuid = str(discord_uuid, )
+        connection, c = self.__connect()
+        if discord_uuid is None:
+            c.execute('''SELECT uuid FROM users WHERE telegram_uuid=?''', (telegram_uuid, ))
+        elif telegram_uuid is None:
+            c.execute('''SELECT uuid FROM users WHERE discord_uuid=?''', (discord_uuid, ))
+        else:
+            c.execute('''SELECT uuid FROM users WHERE telegram_uuid=? AND discord_uuid=?''', (telegram_uuid, discord_uuid))
+        result = c.fetchall()
+        self.__disconnect(connection)
         result = result[0]
-        self.disconnect(connection)
+        return result
+    
+    def __login_details(self, uuid=None, username=None):
+        uuid = str(uuid, )
+        username = str(username, )
+        connection, c = self.__connect()
+        if uuid != None:
+            c.execute('''SELECT username, password, superadmin FROM login_details WHERE uuid=?''', (uuid, ))
+        else:
+            c.execute('''SELECT username, password, superadmin FROM login_details WHERE username=?''', (username, ))
+        result = c.fetchall()
+        self.__disconnect(connection)
+        result = result[0]
         return result
 
-    def reset_tries(self, ip_address):
-        connection, c = self.connect()
-        ip = str(ip_address, )
-        tries = int(0, )
-        c.execute("UPDATE logins SET tries=? WHERE ip_address=?", (tries, ip))
-        self.disconnect(connection)
-
-    def check_for_ip(self, ip_address):
-        connection, c = self.connect()
-        ip = str(ip_address, )
-        c.execute("SELECT * FROM logins WHERE ip_address=?", (ip, ))
-        result = c.fetchall()
-        self.disconnect(connection)
-        if len(result) > 0:
+    def __login_exists(self, uuid):
+        result = self.__login_details(uuid)
+        if(len(result) > 0):
             return True
+        return False
+
+    def __update_login(self, uuid, username, password):
+        uuid = str(uuid, )
+        username = str(username, )
+        password = str(Encrypt(password).encrypt(), )
+        connection, c = self.__connect()
+        if(self.__login_exists(uuid)):
+            c.execute('''UPDATE login_details SET username=?, password=? WHERE uuid=?''', (username, password, uuid))
+        else:
+            c.execute('''INSERT INTO login_details (uuid, username, password) VALUES (?, ?, ?)''', (uuid, username, password))
+        self.__disconnect(connection)
+
+    def __update_superadmin(self, uuid, superadmin):
+        uuid = str(uuid, )
+        superadmin = bool(superadmin, )
+        connection, c = self.__connect()
+        c.execute('''UPDATE login_details SET superadmin=?''', (superadmin, ))
+        self.__disconnect(connection)
+
+    def __check_attempts(self, ip_address):
+        ip_address = str(ip_address, )
+        connection, c = self.__connect()
+        c.execute('''SELECT tries FROM login_attempts WHERE ip_address=?''', (ip_address, ))
+        result = c.fetchall()
+        self.__disconnect()
+        if(len(result[0]) > 1):
+            return result[0]
         else:
             return False
 
-    def block_ip(self, ip_address):
-        connection, c = self.connect()
-        ip = str(ip_address, )
-        c.execute("UPDATE logins SET blocked=1 WHERE ip_address=?", (ip, ))
-        self.disconnect(connection)
+    def __add_attempt(self, ip_address):
+        ip_address = str(ip_address, )
+        connection, c = self.__connect()
+        attempts = self.__check_attempts(ip_address)
+        if(not attempts):
+            c.execute('''INSERT INTO login_attempts (ip_address, tries) VALUES (?, 1)''', (ip_address, )
+        else:
+            attempts = attempts + 1
+            c.execute('''UPDATE login_attempts SET tries=? WHERE ip_address=?''', (attempts, ip_address))
+        self.__disconnect(connection)
 
-    def check_for_blocked(self, ip_address):
-        connection, c = self.connect()
-        ip = str(ip_address, )
-        c.execute("SELECT blocked FROM logins WHERE ip_address=?", (ip, ))
+    def __reset_attempts(self, ip_address):
+        connection, c = self.__connect()
+        c.execute('''UPDATE login_details SET tries=0 WHERE ip_address=?''', (ip_address, ))
+        self.__disconnect(connection)
+ 
+    def __block_ip_address(self, ip_address):
+        ip_address = str(ip_address, )
+        connection, c = self.__connect()
+        c.execute('''UPDATE login_attempts SET blocked=? WHERE ip_address=?''', (bool(True), ip_address))
+        self.__disconnect(connection)
+
+    def __blocked_check(self, ip_address):
+        ip_address = str(ip_address, )
+        connection, c = self.__connect()
+        c.execute('''SELECT tries, blocked FROM login_attempts WHERE ip_address=?''', (ip_address, ))
         result = c.fetchall()
-        self.disconnect(connection)
-        return bool(result[0][0])
+        self.__disconnect(connection)
+        tries = result[0][0]
+        blocked = result[0][1]
+        if(bool(blocked)):
+            return True
+        elif(not bool(blocked) and tries >= 5):
+            self.__block_ip_address(ip_address)
+            return True
+        elif(tries < 5):
+            return False
+        else:
+            return True
 
-    def unblock_ip(self, ip_address):
-        connection, c = self.connect()
-        ip = str(ip_address, )
-        c.execute("UPDATE logins SET blocked=0 WHERE ip_address=?", (ip, ))
-        self.disconnect(connection)
+    def __unblock_ip_address(self, ip_address):
+        ip_address = str(ip_address, )
+        connection, c = self.__connect()
+        c.execute('''UPDATE login_attempts SET blocked=? WHERE ip_address=?''', (bool(False), ip_address))
+        self.__disconnect(connection)
 
-if __name__ == "__main__":
-    #command = command_line()
-    #command.identify()
-    jb_db('/home/ubuntu/jacobbot/database/databases/jacobbot.db').read_full_users()
-    print('*'*8)
-    login_db('/home/ubuntu/jacobbot/database/databases/jacobbot_logins.db').read_full_tries()
-    print('*'*8)
-    login_db('/home/ubuntu/jacobbot/database/databases/jacobbot_logins.db').read_tries("192.168.0.0")
+    def modify_user(self, uuid=None, telegram_uuid=None, discord_uuid=None, username=None, password=None, superadmin=None):
+        if((username == None) and (password == None) and (superadmin == None)):
+            if(not self.__user_exists(telegram_uuid, discord_uuid)):
+                self.__add_user(telegram_uuid, discord_uuid)
+        elif((username != None) and (password != None)):
+            uuid = self.__find_uuid(telegram_uuid, discord_uuid)
+            self.__update_login(uuid, username, password)
+        else:
+            #raise error if superadmin is none
+            pass
+        if(superadmin != None):
+            self.__update_superadmin(uuid, superadmin)
+
+    def check_superadmin(self, username):
+        result = self.__login_details()
+        return bool(result[2])
+
+    def login_attempt(self, username, given_password, ip_address):
+        if(not self.__blocked_check(ip_address)):
+            user, password, superadmin = self.__login_details(username=username)
+            given_password = Encrypt(given_password).encrypt()
+            if given_password == password:
+                self.__reset_attempts(ip_address)
+                return True
+            self.__add_attempt(ip_address)
+            return False
+        return False
+
+    def unblock_ip_address(self, ip_address):
+        self.__unblock_ip_address(ip_address)
+        self.__reset_attempts(ip_address)
+

@@ -50,9 +50,9 @@ class AccessDatabase:
         return self.__jacobbot_database.add_user(uuid = self.uuid)
     def uuid_check(self):
         return self.__jacobbot_database.check_for_uuid(uuid = self.uuid)
-    def update_user(self, admin_user=False, superadmin_user=False, username=None, password=None):
+    def update_user(self, admin_user=False, superadmin_user=False, username=None, password=None, token=None):
         uid = self.uuid
-        self.__jacobbot_database.update_user(uid, admin_user, superadmin_user, username, password)
+        self.__jacobbot_database.update_user(uid, admin_user, superadmin_user, username, password, token)
     def block_user(self):
         access = self.check_access()
         if(access is not True):
