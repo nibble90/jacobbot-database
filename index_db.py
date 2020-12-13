@@ -109,7 +109,7 @@ class jb_database:
         connection, c = self.__connect()
         c.execute('''SELECT tries FROM login_attempts WHERE ip_address=?''', (ip_address, ))
         result = c.fetchall()
-        self.__disconnect()
+        self.__disconnect(connection)
         if(len(result[0]) > 1):
             return result[0]
         else:
