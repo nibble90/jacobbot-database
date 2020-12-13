@@ -12,7 +12,7 @@ class jb_database:
         c = connection.cursor()
         return (connection, c)
 
-    def __disconnect(self):
+    def __disconnect(self, connection):
         connection.commit()
         connection.close()
 
