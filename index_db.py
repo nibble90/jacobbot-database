@@ -56,35 +56,37 @@ class jb_database:
         telegram_uuid = str(telegram_uuid, )
         discord_uuid = str(discord_uuid, )
         connection, c = self.__connect()
-        if discord_uuid is None:
+        if((discord_uuid == "None") and (telegram_uuid != "None")):
             c.execute('''SELECT uuid FROM users WHERE telegram_uuid=?''', (telegram_uuid, ))
-        elif telegram_uuid is None:
+        elif ((telegram_uuid == "None") and (discord_uuid != "None")):
             c.execute('''SELECT uuid FROM users WHERE discord_uuid=?''', (discord_uuid, ))
         else:
             c.execute('''SELECT uuid FROM users WHERE telegram_uuid=? AND discord_uuid=?''', (telegram_uuid, discord_uuid))
         result = c.fetchall()
         self.__disconnect(connection)
-        result = result[0]
         return result
     
     def __login_details(self, uuid=None, username=None):
         uuid = str(uuid, )
         username = str(username, )
         connection, c = self.__connect()
-        if uuid != None:
+        if uuid != "None":
             c.execute('''SELECT username, password, superadmin FROM login_details WHERE uuid=?''', (uuid, ))
         else:
             c.execute('''SELECT username, password, superadmin FROM login_details WHERE username=?''', (username, ))
         result = c.fetchall()
         self.__disconnect(connection)
-        result = result[0]
-        return result
+        if(len(result) > 0):
+            return result[0]
+        return False
+        # result = result[0]
+        # return result
 
     def __login_exists(self, uuid):
         result = self.__login_details(uuid)
-        if(len(result) > 0):
-            return True
-        return False
+        if not result:
+            return False
+        return True
 
     def __update_login(self, uuid, username, password):
         uuid = str(uuid, )
@@ -94,7 +96,7 @@ class jb_database:
         if(self.__login_exists(uuid)):
             c.execute('''UPDATE login_details SET username=?, password=? WHERE uuid=?''', (username, password, uuid))
         else:
-            c.execute('''INSERT INTO login_details (uuid, username, password) VALUES (?, ?, ?)''', (uuid, username, password))
+            c.execute('''INSERT INTO login_details (uuid, superadmin, username, password) VALUES (?, ?, ?, ?)''', (uuid, bool(False), username, password))
         self.__disconnect(connection)
 
     def __update_superadmin(self, uuid, superadmin):
@@ -110,7 +112,7 @@ class jb_database:
         c.execute('''SELECT tries FROM login_attempts WHERE ip_address=?''', (ip_address, ))
         result = c.fetchall()
         self.__disconnect(connection)
-        if(len(result[0]) > 1):
+        if(len(result) > 0):
             return result[0]
         else:
             return False
@@ -119,16 +121,16 @@ class jb_database:
         ip_address = str(ip_address, )
         connection, c = self.__connect()
         attempts = self.__check_attempts(ip_address)
-        if(not attempts):
-            c.execute('''INSERT INTO login_attempts (ip_address, tries) VALUES (?, 1)''', (ip_address, ))
+        if(attempts == False):
+            c.execute('''INSERT INTO login_attempts (ip_address, tries, blocked) VALUES (?, 1, ?)''', (ip_address, bool(False)))
         else:
-            attempts = attempts + 1
+            attempts = int(attempts[0]) + 1
             c.execute('''UPDATE login_attempts SET tries=? WHERE ip_address=?''', (attempts, ip_address))
         self.__disconnect(connection)
 
     def __reset_attempts(self, ip_address):
         connection, c = self.__connect()
-        c.execute('''UPDATE login_details SET tries=0 WHERE ip_address=?''', (ip_address, ))
+        c.execute('''UPDATE login_attempts SET tries=0 WHERE ip_address=?''', (ip_address, ))
         self.__disconnect(connection)
  
     def __block_ip_address(self, ip_address):
@@ -137,12 +139,16 @@ class jb_database:
         c.execute('''UPDATE login_attempts SET blocked=? WHERE ip_address=?''', (bool(True), ip_address))
         self.__disconnect(connection)
 
-    def __blocked_check(self, ip_address):
+    def __blocked_check(self, ip_address, override=False):
+        if not override:
+            self.__add_attempt(ip_address)
         ip_address = str(ip_address, )
         connection, c = self.__connect()
         c.execute('''SELECT tries, blocked FROM login_attempts WHERE ip_address=?''', (ip_address, ))
         result = c.fetchall()
         self.__disconnect(connection)
+        if(len(result) == 0):
+            return False
         tries = result[0][0]
         blocked = result[0][1]
         if(bool(blocked)):
@@ -167,6 +173,7 @@ class jb_database:
                 self.__add_user(telegram_uuid, discord_uuid)
         elif((username != None) and (password != None)):
             uuid = self.__find_uuid(telegram_uuid, discord_uuid)
+            uuid = uuid[0][0]
             self.__update_login(uuid, username, password)
         else:
             #raise error if superadmin is none
@@ -176,19 +183,39 @@ class jb_database:
 
     def check_superadmin(self, username):
         result = self.__login_details()
-        return bool(result[2])
+        if(not result):
+            return bool(result[2])
+        return False
+        
 
     def login_attempt(self, username, given_password, ip_address):
         if(not self.__blocked_check(ip_address)):
-            user, password, superadmin = self.__login_details(username=username)
-            given_password = Encrypt(given_password).encrypt()
-            if given_password == password:
-                self.__reset_attempts(ip_address)
-                return True
-            self.__add_attempt(ip_address)
-            return False
+            try:
+                user, password, superadmin = self.__login_details(username=username)
+                given_password = Encrypt(given_password).encrypt()
+                if given_password == password:
+                    self.__reset_attempts(ip_address)
+                    return True
+                return False
+            except TypeError:
+                return False
         return False
 
     def unblock_ip_address(self, ip_address):
         self.__unblock_ip_address(ip_address)
         self.__reset_attempts(ip_address)
+
+    def check_user(self, username, ip_address, override=False):
+        if(not self.__blocked_check(ip_address, override)):
+            try:
+                user, password, superadmin = self.__login_details(username=username)
+                return True
+            except TypeError:
+                return False
+        else:
+            return False
+            
+if __name__ == "__main__":
+    inst = jb_database("/home/ubuntu/jacobbot/database/databases/jacobbot.db")
+    inst.modify_user(telegram_uuid="123456", discord_uuid="12458")
+    inst.modify_user(discord_uuid="12458", username="admin", password="admin")

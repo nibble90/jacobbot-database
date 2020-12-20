@@ -14,10 +14,10 @@ TODO:
 from .index_db import jb_database
 
 class AccessDatabase:
-    def __init__(self, jblocation="databases/jacobbot.db", loginlocation="databases/jacobbot_logins.db"):
+    def __init__(self, database_location="databases/jacobbot.db"):
         self.ip_address = None
         self.uuid = None
-        self.__jacobbot_database = jb_database(jblocation)
+        self.__jacobbot_database = jb_database(database_location)
 
     def add_user(self):
         return self.__jacobbot_database.modify_user(uuid = self.uuid)
@@ -26,5 +26,9 @@ class AccessDatabase:
         self.__jacobbot_database.modify_user(telegram_uuid=telegram_uuid, discord_uuid=discord_uuid, username=username, password=password, superadmin=superadmin)
 
     def login(self, username, password):
-        attempt = self.__jacobbot_database.login_attempt(username=username, password=password, ip_address=self.ip_address)
+        attempt = self.__jacobbot_database.login_attempt(username=username, given_password=password, ip_address=self.ip_address)
         return attempt
+
+    def check_existance(self, username, override=False):
+        existance = self.__jacobbot_database.check_user(username=username, ip_address=self.ip_address, override=override)
+        return existance
