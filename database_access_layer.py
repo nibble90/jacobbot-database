@@ -32,3 +32,9 @@ class AccessDatabase:
     def check_existance(self, username, override=False):
         existance = self.__jacobbot_database.check_user(username=username, ip_address=self.ip_address, override=override)
         return existance
+    
+    def add_twitter(self, token, token_secret):
+        self.__jacobbot_database.insert_twitter_token(self.uuid, token, token_secret)
+
+    def get_twitter(self):
+        return self.__jacobbot_database.twitter_tokens(self.uuid)

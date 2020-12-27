@@ -167,6 +167,24 @@ class jb_database:
         c.execute('''UPDATE login_attempts SET blocked=? WHERE ip_address=?''', (bool(False), ip_address))
         self.__disconnect(connection)
 
+    def __add_twitter_tokens(self, uuid, twitter_oauth, twitter_oauth_secret):
+        uuid = str(uuid, )
+        twitter_oauth = str(twitter_oauth, )
+        twitter_oauth_secret = str(twitter_oauth_secret, )
+        connection, c = self.__connect()
+        c.execute('''INSERT INTO user_extensions (uuid, twitter_oauth, twitter_oauth_secret) VALUES(?, ?, ?)''', (uuid, twitter_oauth, twitter_oauth_secret))
+        self.__disconnect(connection)
+
+    def __get_twitter_tokens(self, uuid):
+        uuid = str(uuid, )
+        connection, c = self.__connect()
+        c.execute('''SELECT twitter_oauth, twitter_oauth_secret FROM user_extensions WHERE uuid=?''', (uuid, ))
+        results = c.fetchall()
+        self.__disconnect(connection)
+        if(len(results) > 0):
+            return results[0][0], results[0][1]
+        return False
+
     def modify_user(self, uuid=None, telegram_uuid=None, discord_uuid=None, username=None, password=None, superadmin=None):
         if((username == None) and (password == None) and (superadmin == None)):
             if(not self.__user_exists(telegram_uuid, discord_uuid)):
@@ -187,7 +205,6 @@ class jb_database:
             return bool(result[2])
         return False
         
-
     def login_attempt(self, username, given_password, ip_address):
         if(not self.__blocked_check(ip_address)):
             try:
@@ -215,7 +232,22 @@ class jb_database:
         else:
             return False
             
+    def twitter_tokens(self, uuid):
+        result = self.__get_twitter_tokens(uuid)
+        if not result:
+            print('false')
+            return False
+        else:
+            print(result[0], result[1])
+            return result[0], result[1]
+
+    def insert_twitter_token(self, uuid, twitter_oauth, twitter_oauth_secret):
+        self.__add_twitter_tokens(uuid, twitter_oauth, twitter_oauth_secret)
+
 if __name__ == "__main__":
     inst = jb_database("/home/ubuntu/jacobbot/database/databases/jacobbot.db")
-    inst.modify_user(telegram_uuid="123456", discord_uuid="12458")
-    inst.modify_user(discord_uuid="12458", username="admin", password="admin")
+    # inst.modify_user(telegram_uuid="123456", discord_uuid="12458")
+    # inst.modify_user(discord_uuid="12458", username="admin", password="admin")
+    inst.twitter_tokens("123")
+    inst.insert_twitter_token("123", "abcdefg", "gfedcba")
+    inst.twitter_tokens("123")
