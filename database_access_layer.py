@@ -38,3 +38,6 @@ class AccessDatabase:
 
     def get_twitter(self):
         return self.__jacobbot_database.twitter_tokens(self.uuid)
+
+    def remove_twitter(self):
+        self.__jacobbot_database.remove_twitter_token(self.uuid)
