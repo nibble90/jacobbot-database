@@ -171,8 +171,12 @@ class jb_database:
         uuid = str(uuid, )
         twitter_oauth = str(twitter_oauth, )
         twitter_oauth_secret = str(twitter_oauth_secret, )
+        exists = self.__extensions_uuid_exists(uuid)
         connection, c = self.__connect()
-        c.execute('''INSERT INTO user_extensions (uuid, twitter_oauth, twitter_oauth_secret) VALUES(?, ?, ?)''', (uuid, twitter_oauth, twitter_oauth_secret))
+        if not exists:
+            c.execute('''INSERT INTO user_extensions (uuid, twitter_oauth, twitter_oauth_secret) VALUES(?, ?, ?)''', (uuid, twitter_oauth, twitter_oauth_secret))
+        else:
+            c.execute('''UPDATE user_extensions SET twitter_oauth=?, twitter_oauth_secret=? WHERE uuid=?''', (twitter_oauth, twitter_oauth_secret, uuid))
         self.__disconnect(connection)
 
     def __get_twitter_tokens(self, uuid):
@@ -184,6 +188,36 @@ class jb_database:
         if(len(results) > 0):
             return results[0][0], results[0][1]
         return False
+
+    def __extensions_uuid_exists(self, uuid):
+        uuid = str(uuid, )
+        connection, c = self.__connect()
+        c.execute('''SELECT * FROM user_extensions WHERE uuid=?''', (uuid, ))
+        results = c.fetchall()
+        self.__disconnect(connection)
+        if(len(results) > 0):
+            return True
+        return False
+    
+    def __default_weather(self, uuid):
+        uuid = str(uuid, )
+        connection, c = self.__connect()
+        c.execute('''SELECT default_weather FROM user_extensions WHERE uuid=?''', (uuid, ))
+        results = c.fetchall()
+        self.__disconnect(connection)
+        if((results[0] == None ) or (len(results[0]) == 0)):
+            return False
+        return results[0]
+
+    def __remove_twitter_tokens(self, uuid):
+        uuid = str(uuid, )
+        default_weather_set = self.__default_weather(uuid)
+        connection, c = self.__connect()
+        if default_weather_set == False:
+            c.execute('''DELETE FROM user_extensions WHERE uuid=?''', (uuid, ))
+        else:
+            c.execute('''UPDATE user_extensions SET twitter_oauth=?, twitter_oauth_secret=? WHERE uuid=?''', (None, None, uuid))
+        self.__disconnect(connection)
 
     def modify_user(self, uuid=None, telegram_uuid=None, discord_uuid=None, username=None, password=None, superadmin=None):
         if((username == None) and (password == None) and (superadmin == None)):
@@ -235,19 +269,22 @@ class jb_database:
     def twitter_tokens(self, uuid):
         result = self.__get_twitter_tokens(uuid)
         if not result:
-            print('false')
             return False
         else:
-            print(result[0], result[1])
             return result[0], result[1]
 
     def insert_twitter_token(self, uuid, twitter_oauth, twitter_oauth_secret):
+        if self.__get_twitter_tokens(uuid):
+            return False
         self.__add_twitter_tokens(uuid, twitter_oauth, twitter_oauth_secret)
+
+    def remove_twitter_token(self, uuid):
+        self.__remove_twitter_tokens(uuid)
 
 if __name__ == "__main__":
     inst = jb_database("/home/ubuntu/jacobbot/database/databases/jacobbot.db")
     # inst.modify_user(telegram_uuid="123456", discord_uuid="12458")
     # inst.modify_user(discord_uuid="12458", username="admin", password="admin")
-    inst.twitter_tokens("123")
-    inst.insert_twitter_token("123", "abcdefg", "gfedcba")
-    inst.twitter_tokens("123")
+    # inst.twitter_tokens("123")
+    # inst.insert_twitter_token("123", "abcdefg", "gfedcba")
+    # inst.twitter_tokens("123")
