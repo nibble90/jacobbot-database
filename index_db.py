@@ -222,19 +222,25 @@ class jb_database:
         self.__disconnect(connection)
 
     def __two_factor_authentication_secret(self, username):
-        username, password, superadmin = self.__login_details(username=username)
-        if((username == "None") or (password == "None") or (superadmin == "None")):
-            return False
-        else:
-            seckey = password[:15].encode("UTF-8")
-            encoded_seckey = base64.b32encode(seckey)
-            return encoded_seckey, username
+        try:
+            username, password, superadmin = self.__login_details(username=username)
+            if((username == "None") or (password == "None") or (superadmin == "None")):
+                return False, False
+            else:
+                seckey = password[:15].encode("UTF-8")
+                encoded_seckey = base64.b32encode(seckey)
+                return encoded_seckey, username
+        except TypeError:
+            return False, False
+        except Exception as e:
+            return False, False
 
-    def __verify_two_factor_authentication(self, username):
+    def __verify_two_factor_authentication(self, username, code):
         encoded_seckey, username = self.__two_factor_authentication_secret(username)
+        if((encoded_seckey == False) and (username == False)):
+            return False
         instance = pyotp.TOTP(encoded_seckey)
-        print(instance.now())
-        code = input("Input Code\n> ")
+        code = str(code)
         verified = instance.verify(code)
         return verified
 
@@ -305,8 +311,8 @@ class jb_database:
     def remove_twitter_token(self, uuid):
         self.__remove_twitter_tokens(uuid)
 
-    def verify_two_factor(self, username):
-        return self.__verify_two_factor_authentication(username)
+    def verify_two_factor(self, username, code):
+        return self.__verify_two_factor_authentication(username, code)
 
     def register_two_factor_authentication(self, username):
         return self.__register_two_factor_authentication(username)
