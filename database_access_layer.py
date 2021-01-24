@@ -41,3 +41,9 @@ class AccessDatabase:
 
     def remove_twitter(self):
         self.__jacobbot_database.remove_twitter_token(self.uuid)
+
+    def register_two_factor_authentication(self, username):
+        return self.__jacobbot_database.register_two_factor_authentication(username)
+    
+    def verify_two_factor_authentication(self, username):
+        return self.__jacobbot_database.verify_two_factor(username)
