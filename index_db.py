@@ -304,14 +304,16 @@ class jb_database:
 
     def remove_twitter_token(self, uuid):
         self.__remove_twitter_tokens(uuid)
-    
-    def two_factor(self, username):
-        print(self.__register_two_factor_authentication(username))
-        print(self.__verify_two_factor_authentication(username))
+
+    def verify_two_factor(self, username):
+        return self.__verify_two_factor_authentication(username)
+
+    def register_two_factor_authentication(self, username):
+        return self.__register_two_factor_authentication(username)
 
 if __name__ == "__main__":
     inst = jb_database("/home/ubuntu/jacobbot/database/databases/jacobbot.db")
-    inst.two_factor("admin")
+    # inst.two_factor("admin")
     # inst.modify_user(telegram_uuid="123456", discord_uuid="12458")
     # inst.modify_user(discord_uuid="12458", username="admin", password="admin")
     # inst.twitter_tokens("123")
