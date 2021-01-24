@@ -1,4 +1,6 @@
 import sqlite3
+import pyotp
+import base64
 from sys import argv
 from .encryption import Encrypt
 
@@ -219,6 +221,28 @@ class jb_database:
             c.execute('''UPDATE user_extensions SET twitter_oauth=?, twitter_oauth_secret=? WHERE uuid=?''', (None, None, uuid))
         self.__disconnect(connection)
 
+    def __two_factor_authentication_secret(self, username):
+        username, password, superadmin = self.__login_details(username=username)
+        if((username == "None") or (password == "None") or (superadmin == "None")):
+            return False
+        else:
+            seckey = password[:15].encode("UTF-8")
+            encoded_seckey = base64.b32encode(seckey)
+            return encoded_seckey, username
+
+    def __verify_two_factor_authentication(self, username):
+        encoded_seckey, username = self.__two_factor_authentication_secret(username)
+        instance = pyotp.TOTP(encoded_seckey)
+        print(instance.now())
+        code = input("Input Code\n> ")
+        verified = instance.verify(code)
+        return verified
+
+    def __register_two_factor_authentication(self, username):
+        encoded_seckey, username = self.__two_factor_authentication_secret(username)
+        instance = pyotp.totp.TOTP(encoded_seckey).provisioning_uri(name=username, issuer_name='JacobBot Admin Panel')
+        return instance
+
     def modify_user(self, uuid=None, telegram_uuid=None, discord_uuid=None, username=None, password=None, superadmin=None):
         if((username == None) and (password == None) and (superadmin == None)):
             if(not self.__user_exists(telegram_uuid, discord_uuid)):
@@ -280,9 +304,14 @@ class jb_database:
 
     def remove_twitter_token(self, uuid):
         self.__remove_twitter_tokens(uuid)
+    
+    def two_factor(self, username):
+        print(self.__register_two_factor_authentication(username))
+        print(self.__verify_two_factor_authentication(username))
 
 if __name__ == "__main__":
     inst = jb_database("/home/ubuntu/jacobbot/database/databases/jacobbot.db")
+    inst.two_factor("admin")
     # inst.modify_user(telegram_uuid="123456", discord_uuid="12458")
     # inst.modify_user(discord_uuid="12458", username="admin", password="admin")
     # inst.twitter_tokens("123")
