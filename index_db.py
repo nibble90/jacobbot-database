@@ -244,7 +244,7 @@ class jb_database:
         verified = instance.verify(code)
         return verified
 
-    def __register_two_factor_authentication(self, username):
+    def __register_two_factor_auth(self, username):
         encoded_seckey, username = self.__two_factor_authentication_secret(username)
         instance = pyotp.totp.TOTP(encoded_seckey).provisioning_uri(name=username, issuer_name='JacobBot Admin Panel')
         return instance
@@ -315,7 +315,7 @@ class jb_database:
         return self.__verify_two_factor_authentication(username, code)
 
     def register_two_factor_authentication(self, username):
-        return self.__register_two_factor_authentication(username)
+        return self.__register_two_factor_auth(username)
 
 if __name__ == "__main__":
     inst = jb_database("/home/ubuntu/jacobbot/database/databases/jacobbot.db")
